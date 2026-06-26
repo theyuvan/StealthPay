@@ -1,0 +1,20 @@
+# Rust build artifacts
+target/
+
+# Cargo lock files (keep Cargo.lock for binaries, optional for libs)
+# Cargo.lock
+
+# Soroban compiled WASM outputs
+*.wasm
+*.optimized.wasm
+
+# Test artifacts
+.soroban/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
