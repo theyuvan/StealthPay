@@ -5,9 +5,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { useWallet } from "@/hooks/wallet-context"
 import {
   Clock, ExternalLink, RefreshCw, Copy, Check,
-  Search, ShieldCheck, Loader2, ArrowUpRight, ChevronRight
+  Search, ShieldCheck, Loader2, ArrowUpRight, ChevronRight,
+  ArrowDownLeft,
 } from "lucide-react"
 
 const API = "http://localhost:4000"
@@ -38,11 +40,19 @@ function timeAgo(ts: number) {
   return "just now"
 }
 
+function formatTime(ts: number) {
+  return new Date(ts).toLocaleString(undefined, {
+    month: "short", day: "numeric", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  })
+}
+
 function shortAddr(addr: string, n = 6) {
   return addr ? `${addr.slice(0, n)}…${addr.slice(-4)}` : "—"
 }
 
 export default function HistoryPage() {
+  const { publicKey } = useWallet()
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(0)
@@ -65,7 +75,9 @@ export default function HistoryPage() {
     try {
       const res = await fetch(`${API}/announcements?from=${pageNum * PAGE_SIZE}&count=${PAGE_SIZE}`)
       const data = await res.json()
-      setAnnouncements(data.announcements || [])
+      // newest first so "Latest" stat and top card are always the most recent
+      const sorted = (data.announcements || []).slice().sort((a: Announcement, b: Announcement) => b.timestamp - a.timestamp)
+      setAnnouncements(sorted)
       setTotal(data.total || 0)
     } catch { /* ignore */ }
     finally {
@@ -128,7 +140,7 @@ export default function HistoryPage() {
           {[
             { label: "Total payments", value: total.toString() },
             { label: "This page", value: filtered.length.toString() },
-            { label: "Latest", value: announcements[0] ? timeAgo(announcements[0].timestamp) : "—" },
+            { label: "Latest", value: announcements.length > 0 ? timeAgo(Math.max(...announcements.map(a => a.timestamp))) : "—" },
           ].map(({ label, value }) => (
             <Card key={label} className="p-4 bg-card border-border text-center">
               <p className="text-xl font-bold font-heading text-primary">{value}</p>
@@ -168,10 +180,23 @@ export default function HistoryPage() {
                           {ann.metadata.amount} XLM
                         </Badge>
                       )}
-                      <span className="text-xs text-muted-foreground ml-auto">
+                      {/* Sent / Received tag */}
+                      {publicKey && ann.metadata?.sender === publicKey ? (
+                        <Badge className="text-xs bg-orange-500/15 text-orange-400 border-orange-500/25 px-2 gap-1">
+                          <ArrowUpRight className="h-2.5 w-2.5" /> Sent
+                        </Badge>
+                      ) : (
+                        <Badge className="text-xs bg-green-500/15 text-green-400 border-green-500/25 px-2 gap-1">
+                          <ArrowDownLeft className="h-2.5 w-2.5" /> Received
+                        </Badge>
+                      )}
+                      <span className="text-xs text-muted-foreground ml-auto flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
                         {timeAgo(ann.timestamp)}
                       </span>
                     </div>
+                    {/* Formatted timestamp */}
+                    <p className="text-xs text-muted-foreground/60 mb-2">{formatTime(ann.timestamp)}</p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {/* Stealth address */}
