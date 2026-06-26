@@ -7,3 +7,6 @@ yarn-debug.log*
 
 # env files
 .env*
+
+# Circom compiler binary
+/bin/
