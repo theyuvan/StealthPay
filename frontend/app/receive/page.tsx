@@ -23,9 +23,8 @@ type Announcement = {
 }
 
 type MetaKeys = {
-  scanPriv: string; scanPub: string
-  spendPriv: string; spendPub: string
   metaAddress: string
+  metaPriv?: string
   txHash?: string
   onChain?: boolean
 }
@@ -34,8 +33,7 @@ type RegisterStep = "idle" | "generating" | "signing" | "submitting" | "finalizi
 
 export default function ReceivePage() {
   const wallet = useWallet()
-  const [scanPriv, setScanPriv] = useState("")
-  const [spendPub, setSpendPub] = useState("")
+  const [metaPriv, setMetaPriv] = useState("")
   const [results, setResults] = useState<Announcement[] | null>(null)
   const [loading, setLoading] = useState(false)
   const [registerStep, setRegisterStep] = useState<RegisterStep>("idle")
@@ -54,10 +52,7 @@ export default function ReceivePage() {
     setTimeout(() => setCopied(null), 2000)
   }
 
-  // On wallet connect: fetch the canonical meta-address from backend only.
-  // Nothing is cached in localStorage — the wallet→meta linkage stays off the browser.
-  // Public keys are not sensitive but storing them locally creates a plaintext
-  // wallet↔meta-address correlation that weakens the privacy model.
+  // On wallet connect: fetch canonical meta-address from backend only.
   useEffect(() => {
     if (!wallet.publicKey) {
       setAlreadyRegistered(false)
@@ -71,9 +66,7 @@ export default function ReceivePage() {
       .then(r => r.json())
       .then(d => {
         if (d.exists) {
-          const { exists: _e, registeredAt: _r, ...rest } = d
-          setGeneratedKeys({ ...rest, scanPriv: "", spendPriv: "" })
-          setSpendPub(d.spendPub)
+          setGeneratedKeys({ metaAddress: d.metaAddress, txHash: d.txHash, onChain: d.onChain })
           setAlreadyRegistered(true)
         } else {
           setAlreadyRegistered(false)
@@ -83,7 +76,6 @@ export default function ReceivePage() {
       .finally(() => setCheckingRegistry(false))
   }, [wallet.publicKey])
 
-  // Safe JSON fetch — gives a clear error if backend returns HTML (not running / not restarted)
   async function apiFetch(url: string, options?: RequestInit) {
     const res = await fetch(url, options)
     const text = await res.text()
@@ -104,11 +96,11 @@ export default function ReceivePage() {
     setError("")
 
     try {
-      // Step 1 — Generate fresh keys (not saved yet)
+      // Step 1 — Generate fresh single keypair
       setRegisterStep("generating")
       const keys = await apiFetch(`${API}/keys/generate`, { method: "POST" })
 
-      // Step 2 — Build the manageData tx: stores SHA256(metaAddress) on the wallet account
+      // Step 2 — Build manageData tx: stores SHA256(metaAddress) on the wallet account
       const { xdr, networkPassphrase } = await apiFetch(`${API}/keys/build-register-tx`, {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -120,7 +112,7 @@ export default function ReceivePage() {
       const signedXdr = await wallet.signTransaction(xdr, networkPassphrase)
       if (!signedXdr) throw new Error("Wallet did not return a signed transaction")
 
-      // Step 4 — Submit to Stellar testnet (on-chain record created here)
+      // Step 4 — Submit to Stellar testnet
       setRegisterStep("submitting")
       const { hash: txHash } = await apiFetch(`${API}/stealth/submit`, {
         method: "POST",
@@ -133,26 +125,11 @@ export default function ReceivePage() {
       await apiFetch(`${API}/keys/finalize-registration`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          walletAddress: wallet.publicKey,
-          metaAddress: keys.metaAddress,
-          scanPub: keys.scanPub,
-          spendPub: keys.spendPub,
-          txHash,
-        }),
+        body: JSON.stringify({ walletAddress: wallet.publicKey, metaAddress: keys.metaAddress, txHash }),
       })
 
-      setGeneratedKeys({
-        metaAddress: keys.metaAddress,
-        scanPub: keys.scanPub,
-        spendPub: keys.spendPub,
-        txHash,
-        onChain: true,
-        scanPriv: keys.scanPriv,
-        spendPriv: keys.spendPriv,
-      })
-      setScanPriv(keys.scanPriv)
-      setSpendPub(keys.spendPub)
+      setGeneratedKeys({ metaAddress: keys.metaAddress, metaPriv: keys.metaPriv, txHash, onChain: true })
+      setMetaPriv(keys.metaPriv)
       setAlreadyRegistered(true)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Registration failed")
@@ -169,7 +146,7 @@ export default function ReceivePage() {
       const res = await fetch(`${API}/stealth/scan`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ scanPriv, spendPub }),
+        body: JSON.stringify({ metaPriv }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Scan failed")
@@ -196,7 +173,7 @@ export default function ReceivePage() {
     if (!ann.stellarSecret) return
     sessionStorage.setItem("proveData", JSON.stringify({
       stellarProofKey: ann.stellarSecret,
-      scanPriv,
+      metaPriv,
       stellarAddress: ann.stellarAddress,
       amount: ann.balance,
     }))
@@ -211,7 +188,7 @@ export default function ReceivePage() {
           <Badge variant="outline" className="mb-3 text-xs">Recipient</Badge>
           <h1 className="text-4xl font-bold font-heading mb-3">Scan for Payments</h1>
           <p className="text-muted-foreground leading-relaxed">
-            Generate your meta-address (linked to your wallet), scan for incoming payments,
+            Generate your meta-address (linked to your wallet on-chain), scan for incoming payments,
             then claim them to your real wallet via ZK proof.
           </p>
         </div>
@@ -234,7 +211,7 @@ export default function ReceivePage() {
               {checkingRegistry
                 ? <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" />Checking…</>
                 : registerStep === "generating"
-                  ? <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" />Generating keys…</>
+                  ? <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" />Generating…</>
                   : registerStep === "signing"
                     ? <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" />Sign in wallet…</>
                     : registerStep === "submitting"
@@ -249,16 +226,14 @@ export default function ReceivePage() {
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="scanPriv" className="text-sm font-medium mb-2 block">Scan private key</Label>
-              <Input id="scanPriv" value={scanPriv} onChange={e => setScanPriv(e.target.value)}
-                placeholder="Hex scan private key" className="font-mono text-sm" type="password" />
+              <Label htmlFor="metaPriv" className="text-sm font-medium mb-2 block">
+                Private Key
+                <span className="text-muted-foreground font-normal ml-1 text-xs">(used for scanning and withdrawals)</span>
+              </Label>
+              <Input id="metaPriv" value={metaPriv} onChange={e => setMetaPriv(e.target.value)}
+                placeholder="Hex private key" className="font-mono text-sm" type="password" />
             </div>
-            <div>
-              <Label htmlFor="spendPub" className="text-sm font-medium mb-2 block">Spend public key</Label>
-              <Input id="spendPub" value={spendPub} onChange={e => setSpendPub(e.target.value)}
-                placeholder="02… or 03…" className="font-mono text-sm" />
-            </div>
-            <Button onClick={scanPayments} disabled={!scanPriv.trim() || !spendPub.trim() || loading} className="w-full">
+            <Button onClick={scanPayments} disabled={!metaPriv.trim() || loading} className="w-full">
               {loading
                 ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Scanning…</>
                 : <><ScanLine className="mr-2 h-4 w-4" />Scan for My Payments</>}
@@ -266,14 +241,14 @@ export default function ReceivePage() {
           </div>
         </Card>
 
-        {/* Your keys — always show when registered */}
+        {/* Your keys */}
         {generatedKeys && (
           <Card className="p-5 mb-6 bg-primary/5 border-primary/20">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
                   <p className="text-sm font-semibold">
-                    {alreadyRegistered && !generatedKeys.scanPriv ? "Your registered keys" : "Keys registered on-chain"}
+                    {generatedKeys.metaPriv ? "Keys registered on-chain" : "Your registered keys"}
                   </p>
                   {(generatedKeys.onChain || generatedKeys.txHash) && (
                     <span className="text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 px-1.5 py-0.5 rounded font-medium">
@@ -282,9 +257,9 @@ export default function ReceivePage() {
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {generatedKeys.scanPriv
-                    ? "Save private keys now — they are never stored on any server."
-                    : "Public keys loaded from registry. Private keys only shown once at generation time."}
+                  {generatedKeys.metaPriv
+                    ? "Save your private key now — it is never stored on any server."
+                    : "Public meta-address loaded from registry. Private key only shown once at generation."}
                 </p>
                 {generatedKeys.txHash && (
                   <a
@@ -297,7 +272,7 @@ export default function ReceivePage() {
                   </a>
                 )}
               </div>
-              {generatedKeys.scanPriv && (
+              {generatedKeys.metaPriv && (
                 <button onClick={() => setShowPriv(v => !v)} className="text-muted-foreground hover:text-primary transition-colors ml-3 flex-shrink-0">
                   {showPriv ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -305,47 +280,42 @@ export default function ReceivePage() {
             </div>
 
             <div className="space-y-2">
-              {/* Meta-address */}
-              {[
-                { label: "Meta-address", sublabel: "share this with senders", value: generatedKeys.metaAddress, key: "meta", highlight: true },
-                { label: "Scan public key", sublabel: "public", value: generatedKeys.scanPub, key: "scanpub", highlight: false },
-                { label: "Spend public key", sublabel: "public", value: generatedKeys.spendPub, key: "spendpub", highlight: false },
-              ].map(({ label, sublabel, value, key, highlight }) => (
-                <div key={key} className={`p-2.5 rounded-md bg-muted/50 border ${highlight ? "border-primary/30" : "border-border"}`}>
-                  <div className="flex items-center justify-between mb-0.5">
-                    <span className={`text-xs font-medium ${highlight ? "text-primary" : "text-muted-foreground"}`}>
-                      {label} <span className="font-normal opacity-70">({sublabel})</span>
-                    </span>
-                    <button onClick={() => copy(value, key)} className="text-muted-foreground hover:text-primary">
-                      {copied === key ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                    </button>
-                  </div>
-                  <p className="font-mono text-xs break-all">{value}</p>
+              {/* Meta-address (public) */}
+              <div className="p-2.5 rounded-md bg-muted/50 border border-primary/30">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-xs font-medium text-primary">
+                    Meta-address <span className="font-normal opacity-70">(share with senders)</span>
+                  </span>
+                  <button onClick={() => copy(generatedKeys.metaAddress, "meta")} className="text-muted-foreground hover:text-primary">
+                    {copied === "meta" ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                  </button>
                 </div>
-              ))}
+                <p className="font-mono text-xs break-all">{generatedKeys.metaAddress}</p>
+              </div>
 
-              {/* Private keys — only available in the session they were generated */}
-              {generatedKeys.scanPriv ? (
-                showPriv && [
-                  { label: "Scan private key", sublabel: "secret — keep safe", value: generatedKeys.scanPriv, key: "sp" },
-                  { label: "Spend private key", sublabel: "secret — keep safe", value: generatedKeys.spendPriv, key: "spk" },
-                ].map(({ label, sublabel, value, key }) => (
-                  <div key={key} className="p-2.5 rounded-md bg-muted/50 border border-amber-500/30">
+              {/* Private key — only shown in the session it was generated */}
+              {generatedKeys.metaPriv ? (
+                showPriv ? (
+                  <div className="p-2.5 rounded-md bg-muted/50 border border-amber-500/30">
                     <div className="flex items-center justify-between mb-0.5">
                       <span className="text-xs font-medium text-amber-400">
-                        {label} <span className="font-normal opacity-70">({sublabel})</span>
+                        Private Key <span className="font-normal opacity-70">(secret — keep safe)</span>
                       </span>
-                      <button onClick={() => copy(value, key)} className="text-muted-foreground hover:text-primary">
-                        {copied === key ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                      <button onClick={() => copy(generatedKeys.metaPriv!, "priv")} className="text-muted-foreground hover:text-primary">
+                        {copied === "priv" ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                       </button>
                     </div>
-                    <p className="font-mono text-xs break-all">{value}</p>
+                    <p className="font-mono text-xs break-all">{generatedKeys.metaPriv}</p>
                   </div>
-                ))
+                ) : (
+                  <div className="p-2.5 rounded-md bg-muted/50 border border-amber-500/20 flex items-center justify-between">
+                    <span className="text-xs text-amber-400">Private Key hidden — click eye icon to reveal</span>
+                    <Eye className="h-3.5 w-3.5 text-amber-400/60" />
+                  </div>
+                )
               ) : (
                 <div className="p-2.5 rounded-md bg-amber-500/5 border border-amber-500/20 text-xs text-amber-400">
-                  Private keys are not stored anywhere — they were only shown once when you first generated your keys.
-                  You must have saved them at that time.
+                  Private key not stored anywhere — only shown once when you first generated your keys. You must have saved it then.
                 </div>
               )}
             </div>
@@ -367,7 +337,7 @@ export default function ReceivePage() {
             {results.length === 0 ? (
               <Card className="p-8 text-center bg-card border-border">
                 <ScanLine className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground text-sm">No payments found for these keys.</p>
+                <p className="text-muted-foreground text-sm">No payments found for this key.</p>
               </Card>
             ) : (
               <div className="space-y-4">
@@ -394,7 +364,6 @@ export default function ReceivePage() {
                       </a>
                     </div>
 
-                    {/* Stellar Proof Key */}
                     {ann.stellarSecret && (
                       <div className="mb-4 p-3 rounded-md bg-primary/5 border border-primary/20">
                         <div className="flex items-center justify-between mb-1">
@@ -406,17 +375,13 @@ export default function ReceivePage() {
                         </div>
                         <p className="font-mono text-xs break-all text-foreground">{ann.stellarSecret}</p>
                         <p className="text-xs text-muted-foreground mt-1.5">
-                          Use this key on the <strong className="text-foreground">Prove</strong> page to generate a ZK proof
-                          and automatically receive the funds in your wallet.
+                          Use this on the <strong className="text-foreground">Prove</strong> page to generate a ZK proof
+                          and receive the funds in your wallet.
                         </p>
                       </div>
                     )}
 
-                    <Button
-                      className="w-full"
-                      onClick={() => goToProve(ann)}
-                      disabled={!ann.stellarSecret}
-                    >
+                    <Button className="w-full" onClick={() => goToProve(ann)} disabled={!ann.stellarSecret}>
                       Generate ZK Proof &amp; Claim to Wallet
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>

@@ -25,7 +25,7 @@ type ProveResult = {
 
 type SessionData = {
   stellarProofKey: string
-  scanPriv: string
+  metaPriv: string
   stellarAddress?: string
   amount?: string
 }
@@ -35,8 +35,7 @@ export default function ProvePage() {
 
   // Fields
   const [stellarProofKey, setStellarProofKey] = useState("")
-  const [scanPriv, setScanPriv] = useState("")
-  const [spendPriv, setSpendPriv] = useState("")
+  const [metaPriv, setMetaPriv] = useState("")
 
   type ClaimStep = "idle" | "proving" | "signing" | "submitting" | "claiming"
   const [step, setStep] = useState<ClaimStep>("idle")
@@ -64,7 +63,7 @@ export default function ProvePage() {
       if (!raw) return
       const data: SessionData = JSON.parse(raw)
       if (data.stellarProofKey) setStellarProofKey(data.stellarProofKey)
-      if (data.scanPriv) setScanPriv(data.scanPriv)
+      if (data.metaPriv) setMetaPriv(data.metaPriv)
       sessionStorage.removeItem("proveData")
     } catch { /* ignore */ }
   }, [])
@@ -88,7 +87,7 @@ export default function ProvePage() {
       const proveRes = await fetch(`${API}/zk/prove`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ scanPriv, spendPriv, context: "01" }),
+        body: JSON.stringify({ metaPriv, context: "01" }),
       })
       const proof: ProveResult = await proveRes.json()
       if (!proveRes.ok) throw new Error((proof as { error?: string }).error || "Proof generation failed")
@@ -146,7 +145,7 @@ export default function ProvePage() {
     }
   }
 
-  const canProve = stellarProofKey.trim() && scanPriv.trim() && spendPriv.trim() && wallet.connected
+  const canProve = stellarProofKey.trim() && metaPriv.trim() && wallet.connected
   const isWorking = step !== "idle"
 
   return (
@@ -203,23 +202,15 @@ export default function ProvePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="scanPriv" className="text-sm font-medium mb-2 block">Scan private key</Label>
+                <Label htmlFor="metaPriv" className="text-sm font-medium mb-2 block">
+                  Private Key
+                  <span className="text-muted-foreground font-normal ml-1 text-xs">(from /receive page)</span>
+                </Label>
                 <Input
-                  id="scanPriv"
-                  value={scanPriv}
-                  onChange={e => setScanPriv(e.target.value)}
-                  placeholder="Hex scan private key"
-                  className="font-mono text-sm"
-                  type="password"
-                />
-              </div>
-              <div>
-                <Label htmlFor="spendPriv" className="text-sm font-medium mb-2 block">Spend private key</Label>
-                <Input
-                  id="spendPriv"
-                  value={spendPriv}
-                  onChange={e => setSpendPriv(e.target.value)}
-                  placeholder="Hex spend private key"
+                  id="metaPriv"
+                  value={metaPriv}
+                  onChange={e => setMetaPriv(e.target.value)}
+                  placeholder="Hex private key"
                   className="font-mono text-sm"
                   type="password"
                 />

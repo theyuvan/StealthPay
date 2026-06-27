@@ -166,7 +166,7 @@ export default function SendPage() {
               <div>
                 <Label htmlFor="meta" className="text-sm font-medium mb-2 block">
                   Recipient meta-address
-                  <span className="text-muted-foreground font-normal ml-1 text-xs">(scanPub:spendPub from their /receive page)</span>
+                  <span className="text-muted-foreground font-normal ml-1 text-xs">(from recipient&apos;s /receive page)</span>
                 </Label>
                 <Input
                   id="meta"
