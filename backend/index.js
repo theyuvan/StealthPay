@@ -42,11 +42,12 @@ app.get('/health', (req, res) => res.json({ ok: true }))
 
 // list announcements with pagination
 app.get('/announcements', (req, res) => {
-  const { from = 0, count = 20 } = req.query
+  const { from = 0, count = 20, sort = 'asc' } = req.query
   const list = readAnnouncements()
+  const ordered = sort === 'desc' ? list.slice().reverse() : list
   const f = parseInt(from, 10) || 0
   const c = Math.min(100, parseInt(count, 10) || 20)
-  res.json({ total: list.length, announcements: list.slice(f, f + c) })
+  res.json({ total: list.length, announcements: ordered.slice(f, f + c) })
 })
 
 // post a new announcement: { stealthAddress, ephemeralR, metadata }
