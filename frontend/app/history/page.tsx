@@ -55,6 +55,7 @@ export default function HistoryPage() {
   const { publicKey } = useWallet()
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [total, setTotal] = useState(0)
+  const [latestTs, setLatestTs] = useState(0)
   const [page, setPage] = useState(0)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -73,12 +74,30 @@ export default function HistoryPage() {
     if (!silent) setLoading(true)
     else setRefreshing(true)
     try {
-      const res = await fetch(`${API}/announcements?from=${pageNum * PAGE_SIZE}&count=${PAGE_SIZE}`)
+      // Step 1: get total so we can reverse-paginate (newest on page 0)
+      const metaRes = await fetch(`${API}/announcements?from=0&count=1`)
+      const metaData = await metaRes.json()
+      const totalCount: number = metaData.total || 0
+      setTotal(totalCount)
+
+      if (totalCount === 0) { setAnnouncements([]); return }
+
+      // Step 2: compute offset from the end so page 0 = newest entries
+      const offset = Math.max(0, totalCount - (pageNum + 1) * PAGE_SIZE)
+      const fetchCount = Math.min(PAGE_SIZE, totalCount - pageNum * PAGE_SIZE)
+      if (fetchCount <= 0) { setAnnouncements([]); return }
+
+      const res = await fetch(`${API}/announcements?from=${offset}&count=${fetchCount}`)
       const data = await res.json()
-      // newest first so "Latest" stat and top card are always the most recent
-      const sorted = (data.announcements || []).slice().sort((a: Announcement, b: Announcement) => b.timestamp - a.timestamp)
+      const sorted = (data.announcements || [])
+        .slice()
+        .sort((a: Announcement, b: Announcement) => b.timestamp - a.timestamp)
       setAnnouncements(sorted)
-      setTotal(data.total || 0)
+
+      // Capture global latest from page 0 (always the newest entries)
+      if (pageNum === 0 && sorted.length > 0) {
+        setLatestTs(sorted[0].timestamp)
+      }
     } catch { /* ignore */ }
     finally {
       setLoading(false)
@@ -140,7 +159,7 @@ export default function HistoryPage() {
           {[
             { label: "Total payments", value: total.toString() },
             { label: "This page", value: filtered.length.toString() },
-            { label: "Latest", value: announcements.length > 0 ? timeAgo(Math.max(...announcements.map(a => a.timestamp))) : "—" },
+            { label: "Latest", value: latestTs > 0 ? timeAgo(latestTs) : "—" },
           ].map(({ label, value }) => (
             <Card key={label} className="p-4 bg-card border-border text-center">
               <p className="text-xl font-bold font-heading text-primary">{value}</p>
@@ -175,11 +194,6 @@ export default function HistoryPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <span className="text-xs font-mono text-muted-foreground">#{ann.id}</span>
-                      {ann.metadata?.amount && (
-                        <Badge className="text-xs bg-primary/15 text-primary border-primary/25 px-2">
-                          {ann.metadata.amount} XLM
-                        </Badge>
-                      )}
                       {/* Sent / Received tag */}
                       {publicKey && ann.metadata?.sender === publicKey ? (
                         <Badge className="text-xs bg-orange-500/15 text-orange-400 border-orange-500/25 px-2 gap-1">
@@ -220,24 +234,6 @@ export default function HistoryPage() {
                           )}
                         </div>
                       </div>
-
-                      {/* Sender */}
-                      {ann.metadata?.sender && (
-                        <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground mb-0.5">Sender</p>
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-xs text-foreground truncate">
-                              {shortAddr(ann.metadata.sender, 8)}
-                            </span>
-                            <button
-                              onClick={() => copy(ann.metadata!.sender!, `sender-${ann.id}`)}
-                              className="text-muted-foreground hover:text-primary transition-colors flex-shrink-0"
-                            >
-                              {copied === `sender-${ann.id}` ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                            </button>
-                          </div>
-                        </div>
-                      )}
                     </div>
 
                     {/* Tx hash */}
