@@ -5,19 +5,20 @@ const { pointToScalar, CURVE_N, deriveStellarKeypair } = require('./stealth')
 
 const G = secp256k1.Point.BASE
 
-function scanAnnouncements(scanPrivHex, spendPubHex, announcements) {
-  const ks  = BigInt('0x' + scanPrivHex)
-  const Ksp = secp256k1.Point.fromHex(spendPubHex)
+function scanAnnouncements(metaPrivHex, metaPubHex, announcements) {
+  const km    = BigInt('0x' + metaPrivHex)
+  const Kmeta = secp256k1.Point.fromHex(metaPubHex)
 
   const owned = []
   for (const ann of announcements) {
     try {
       const R = secp256k1.Point.fromHex(ann.ephemeralR)
-      const S = R.multiply(ks)
+      const S = R.multiply(km)
       const h = pointToScalar(S)
-      const expectedP = Ksp.add(G.multiply(h))
+      // Expected stealth pub = metaPub + h·G
+      const expectedP = Kmeta.add(G.multiply(h))
       if (bytesToHex(expectedP.toBytes(true)) === ann.stealthAddress) {
-        const { stellarAddress, stellarSecret } = deriveStellarKeypair(scanPrivHex, ann.ephemeralR)
+        const { stellarAddress, stellarSecret } = deriveStellarKeypair(metaPrivHex, ann.ephemeralR)
         owned.push({ ...ann, stellarAddress, stellarSecret })
       }
     } catch {

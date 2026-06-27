@@ -68,62 +68,51 @@ app.post('/announcements', (req, res) => {
 
 // ── Crypto routes ────────────────────────────────────────────────────────────
 
-// Generate a fresh meta-address (scan keypair + spend keypair).
-// The caller must save all four keys; only metaAddress is meant to be shared.
+// Generate a fresh meta-address — one keypair, one private key.
 app.post('/keys/generate', (_req, res) => {
   res.json(generateMetaAddress())
 })
 
-// Derive a one-time stealth address from a recipient's meta-address.
-// Body: { metaAddress } OR { scanPub, spendPub }
-// Returns: { stealthPub, ephemeralR }
+// Derive a one-time stealth address from a recipient's meta-address (their single public key).
+// Body: { metaAddress }
+// Returns: { stealthPub, ephemeralR, stellarAddress }
 app.post('/stealth/derive', (req, res) => {
-  let { scanPub, spendPub, metaAddress } = req.body
-  if (metaAddress && !scanPub) {
-    const parts = metaAddress.split(':')
-    if (parts.length !== 2) {
-      return res.status(400).json({ error: 'metaAddress must be "scanPub:spendPub"' })
-    }
-    ;[scanPub, spendPub] = parts
-  }
-  if (!scanPub || !spendPub) {
-    return res.status(400).json({ error: 'scanPub and spendPub are required' })
-  }
+  const { metaAddress } = req.body
+  if (!metaAddress) return res.status(400).json({ error: 'metaAddress required' })
   try {
-    res.json(deriveStealthAddress(scanPub, spendPub))
+    res.json(deriveStealthAddress(metaAddress))
   } catch (e) {
     res.status(400).json({ error: e.message })
   }
 })
 
-// Scan all stored announcements for payments owned by the given scan key.
-// Body: { scanPriv, spendPub }
-// Returns: { total, owned, announcements: [...matched entries] }
+// Scan all announcements for payments owned by the given private key.
+// Body: { metaPriv }
+// Returns: { total, owned, announcements: [...matched] }
 app.post('/stealth/scan', (req, res) => {
-  const { scanPriv, spendPub } = req.body
-  if (!scanPriv || !spendPub) {
-    return res.status(400).json({ error: 'scanPriv and spendPub are required' })
-  }
+  const { metaPriv } = req.body
+  if (!metaPriv) return res.status(400).json({ error: 'metaPriv required' })
   try {
+    const { secp256k1 } = require('@noble/curves/secp256k1.js')
+    const { bytesToHex } = require('@noble/hashes/utils.js')
+    const metaPub = bytesToHex(secp256k1.getPublicKey(Buffer.from(metaPriv, 'hex'), true))
     const all = readAnnouncements()
-    const matched = scanAnnouncements(scanPriv, spendPub, all)
+    const matched = scanAnnouncements(metaPriv, metaPub, all)
     res.json({ total: all.length, owned: matched.length, announcements: matched })
   } catch (e) {
     res.status(400).json({ error: e.message })
   }
 })
 
-// Derive the spend private key + Stellar keypair for a claimed stealth address.
-// Body: { scanPriv, spendPriv, ephemeralR }
+// Derive Stellar keypair for a claimed stealth address.
+// Body: { metaPriv, ephemeralR }
 // Returns: { stealthPriv, stellarAddress, stellarSecret }
 app.post('/stealth/spend-key', (req, res) => {
-  const { scanPriv, spendPriv, ephemeralR } = req.body
-  if (!scanPriv || !spendPriv || !ephemeralR) {
-    return res.status(400).json({ error: 'scanPriv, spendPriv, and ephemeralR are required' })
-  }
+  const { metaPriv, ephemeralR } = req.body
+  if (!metaPriv || !ephemeralR) return res.status(400).json({ error: 'metaPriv and ephemeralR required' })
   try {
-    const stealthPriv = deriveSpendKey(scanPriv, spendPriv, ephemeralR)
-    const { stellarAddress, stellarSecret } = deriveStellarKeypair(scanPriv, ephemeralR)
+    const stealthPriv = deriveSpendKey(metaPriv, ephemeralR)
+    const { stellarAddress, stellarSecret } = deriveStellarKeypair(metaPriv, ephemeralR)
     res.json({ stealthPriv, stellarAddress, stellarSecret })
   } catch (e) {
     res.status(400).json({ error: e.message })
@@ -216,16 +205,14 @@ app.post('/stealth/submit', async (req, res) => {
 // ── ZK proof routes ───────────────────────────────────────────────────────────
 
 // Generate a Groth16 ownership proof.
-// Body: { scanPriv, spendPriv, context? }
+// Body: { metaPriv, context? }
 // Returns: { proof, publicSignals, metaCommitment, nullifier }
-// The proof can be submitted to the on-chain Soroban verifier contract.
 app.post('/zk/prove', async (req, res) => {
-  const { scanPriv, spendPriv, context } = req.body
-  if (!scanPriv || !spendPriv) {
-    return res.status(400).json({ error: 'scanPriv and spendPriv are required' })
-  }
+  const { metaPriv, context } = req.body
+  if (!metaPriv) return res.status(400).json({ error: 'metaPriv required' })
   try {
-    const result = await computeProof(scanPriv, spendPriv, context || '01')
+    // Pass metaPriv as both scan and spend — single-key scheme
+    const result = await computeProof(metaPriv, metaPriv, context || '01')
     res.json(result)
   } catch (e) {
     res.status(500).json({ error: e.message })
@@ -258,11 +245,11 @@ const META_MAP_FILE = path.join(DATA_DIR, 'meta_map.json')
 if (!fs.existsSync(META_MAP_FILE)) fs.writeJsonSync(META_MAP_FILE, {})
 
 app.post('/keys/register', (req, res) => {
-  const { walletAddress, metaAddress, scanPub, spendPub } = req.body
+  const { walletAddress, metaAddress } = req.body
   if (!walletAddress || !metaAddress) return res.status(400).json({ error: 'walletAddress and metaAddress required' })
   const map = fs.readJsonSync(META_MAP_FILE)
   if (!map[walletAddress]) {
-    map[walletAddress] = { metaAddress, scanPub, spendPub, registeredAt: Date.now() }
+    map[walletAddress] = { metaAddress, registeredAt: Date.now() }
     fs.writeJsonSync(META_MAP_FILE, map)
   }
   res.json({ ok: true, metaAddress: map[walletAddress].metaAddress })
@@ -305,20 +292,18 @@ app.post('/keys/build-register-tx', async (req, res) => {
 })
 
 // Finalize registration after the wallet has signed and submitted the on-chain tx.
-// Only stores the mapping if the wallet doesn't already have one.
-// Body: { walletAddress, metaAddress, scanPub, spendPub, txHash }
+// Body: { walletAddress, metaAddress, txHash }
 // Returns: { ok, metaAddress, txHash }
 app.post('/keys/finalize-registration', (req, res) => {
-  const { walletAddress, metaAddress, scanPub, spendPub, txHash } = req.body
+  const { walletAddress, metaAddress, txHash } = req.body
   if (!walletAddress || !metaAddress || !txHash) {
     return res.status(400).json({ error: 'walletAddress, metaAddress, and txHash required' })
   }
   const map = fs.readJsonSync(META_MAP_FILE)
   if (map[walletAddress]) {
-    // Already registered — idempotent, return existing
     return res.json({ ok: true, metaAddress: map[walletAddress].metaAddress, txHash: map[walletAddress].txHash, alreadyExisted: true })
   }
-  map[walletAddress] = { metaAddress, scanPub, spendPub, txHash, registeredAt: Date.now(), onChain: true }
+  map[walletAddress] = { metaAddress, txHash, registeredAt: Date.now(), onChain: true }
   fs.writeJsonSync(META_MAP_FILE, map)
   res.json({ ok: true, metaAddress, txHash })
 })
@@ -326,8 +311,8 @@ app.post('/keys/finalize-registration', (req, res) => {
 // Atomic get-or-create: returns existing meta-address for the wallet, or
 // generates + stores a brand-new one. Never overwrites an existing entry.
 // Body: { walletAddress }
-// Returns: { isNew, metaAddress, scanPub, spendPub, scanPriv?, spendPriv? }
-// Private keys only included when isNew=true (only time they ever leave the server).
+// Returns: { isNew, metaAddress, metaPriv? }
+// metaPriv only included when isNew=true — only time it ever leaves the server.
 app.post('/keys/get-or-create', (req, res) => {
   const { walletAddress } = req.body
   if (!walletAddress) return res.status(400).json({ error: 'walletAddress required' })
@@ -335,29 +320,23 @@ app.post('/keys/get-or-create', (req, res) => {
   const map = fs.readJsonSync(META_MAP_FILE)
 
   if (map[walletAddress]) {
-    // Already registered — return public fields only, never regenerate
-    const { metaAddress, scanPub, spendPub, registeredAt } = map[walletAddress]
-    return res.json({ isNew: false, metaAddress, scanPub, spendPub, registeredAt })
+    const { metaAddress, registeredAt } = map[walletAddress]
+    return res.json({ isNew: false, metaAddress, registeredAt })
   }
 
   // First time for this wallet — generate and store atomically
   const keys = generateMetaAddress()
   map[walletAddress] = {
     metaAddress: keys.metaAddress,
-    scanPub: keys.scanPub,
-    spendPub: keys.spendPub,
     registeredAt: Date.now(),
   }
   fs.writeJsonSync(META_MAP_FILE, map)
 
-  // Return full keys including private — only ever sent once
+  // Return metaPriv only once — never stored, never sent again
   res.json({
     isNew: true,
     metaAddress: keys.metaAddress,
-    scanPub: keys.scanPub,
-    spendPub: keys.spendPub,
-    scanPriv: keys.scanPriv,
-    spendPriv: keys.spendPriv,
+    metaPriv: keys.metaPriv,
   })
 })
 
