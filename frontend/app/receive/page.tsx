@@ -161,7 +161,11 @@ export default function ReceivePage() {
           } catch { return ann }
         })
       )
-      setResults(withBalances)
+      // Only show payments that still have a positive balance (not yet claimed)
+      const unclaimed = withBalances.filter(ann =>
+        ann.balance != null && parseFloat(ann.balance) > 0
+      )
+      setResults(unclaimed)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Unknown error")
     } finally {
