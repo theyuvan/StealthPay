@@ -1,16 +1,18 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Shield, ArrowRight } from "lucide-react"
+import { Shield, Lock, Zap, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { achievements } from "@/data/portfolio-data"
 
 export default function HeroSection() {
   return (
     <section className="relative h-screen flex items-center px-4 lg:px-8 overflow-hidden">
-      <div className="absolute inset-0 bg-secondary/5" />
+      {/* Subtle dark gradient behind text so it reads on the 3D background */}
+      <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-transparent" />
 
       <div className="relative z-10 max-w-7xl mx-auto w-full">
         <div className="grid lg:grid-cols-3 gap-8 items-center h-full">
+          {/* ── Left column: hero copy ──────────────────────────────────── */}
           <div className="lg:col-span-2 space-y-8">
             <div>
               <Badge variant="outline" className="mb-4 text-sm font-medium">
@@ -59,13 +61,27 @@ export default function HeroSection() {
             </div>
           </div>
 
-          <div className="hidden lg:flex lg:col-span-1 h-full items-center justify-center">
-            <div className="relative w-72 h-72">
-              <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse" />
-              <div className="absolute inset-8 rounded-full bg-primary/20 animate-pulse" style={{ animationDelay: "0.5s" }} />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Shield className="h-24 w-24 text-primary" />
-              </div>
+          {/* ── Right column: floating feature cards (no static shield) ─── */}
+          <div className="hidden lg:flex lg:col-span-1 h-full items-center justify-end pr-4">
+            <div className="space-y-4 w-64">
+              {[
+                { icon: Shield, label: "Stealth Addresses", sub: "One-time addresses per payment", color: "text-primary" },
+                { icon: Lock,   label: "ZK Proofs",         sub: "Groth16 ownership proof",        color: "text-cyan-400" },
+                { icon: Zap,    label: "Stellar Network",   sub: "Global private settlement",      color: "text-purple-400" },
+              ].map(({ icon: Icon, label, sub, color }) => (
+                <div
+                  key={label}
+                  className="p-4 rounded-xl border border-border/40 bg-background/50 backdrop-blur-sm flex items-start gap-3"
+                >
+                  <div className={`mt-0.5 ${color}`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{label}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

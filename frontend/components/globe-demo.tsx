@@ -6,216 +6,48 @@ const World = dynamic(() => import("@/components/ui/globe").then((m) => m.World)
   ssr: false,
 })
 
-export default function StudentGlobe() {
+export default function GlobeDemo() {
   const globeConfig = {
     pointSize: 4,
-    globeColor: "#0a0a0a", // back to dark globe
+    globeColor: "#03050f",
     showAtmosphere: true,
-    atmosphereColor: "#eab308", // keep sunshine yellow atmosphere
-    atmosphereAltitude: 0.15,
-    emissive: "#000000", // removed yellow emissive glow
-    emissiveIntensity: 0, // no glow intensity
-    shininess: 0.1, // reduced shininess for matte look
-    polygonColor: "rgba(234,179,8,0.2)", // subtle yellow country borders
-    ambientLight: "#404040", // subtle ambient light
+    atmosphereColor: "#eab308",
+    atmosphereAltitude: 0.18,
+    emissive: "#060d22",
+    emissiveIntensity: 0.4,
+    shininess: 0.6,
+    polygonColor: "rgba(234,179,8,0.15)",
+    ambientLight: "#404040",
     directionalLeftLight: "#ffffff",
     directionalTopLight: "#ffffff",
-    pointLight: "#ffffff",
-    arcTime: 1000,
+    pointLight: "#eab308",
+    arcTime: 1800,
     arcLength: 0.9,
     rings: 1,
     maxRings: 3,
-    initialPosition: { lat: 54.526, lng: -2.9623 }, // UK position for Ciara
     autoRotate: true,
     autoRotateSpeed: 0.5,
-    showGraticules: true, // show latitude/longitude grid lines
-    graticulesColor: "#eab308", // yellow grid lines
-    graticulesOpacity: 0.3, // subtle grid visibility
   }
 
-  const colors = ["#eab308", "#fbbf24", "#f59e0b"]
+  const colors = ["#eab308", "#06b6d4", "#a855f7"]
 
-  const studentConnections = [
-    {
-      order: 1,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 40.7128,
-      endLng: -74.006, // New York
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 1,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 37.7749,
-      endLng: -122.4194, // San Francisco
-      arcAlt: 0.4,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 2,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: -33.8688,
-      endLng: 151.2093, // Sydney
-      arcAlt: 0.5,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 2,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 35.6762,
-      endLng: 139.6503, // Tokyo
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 3,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 28.6139,
-      endLng: 77.209, // Delhi
-      arcAlt: 0.4,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 3,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 1.3521,
-      endLng: 103.8198, // Singapore
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 4,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: -22.9068,
-      endLng: -43.1729, // Rio
-      arcAlt: 0.5,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 4,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 52.52,
-      endLng: 13.405, // Berlin
-      arcAlt: 0.1,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 5,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 48.8566,
-      endLng: 2.3522, // Paris
-      arcAlt: 0.1,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 5,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 34.0522,
-      endLng: -118.2437, // Los Angeles
-      arcAlt: 0.4,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 6,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 43.6532,
-      endLng: -79.3832, // Toronto
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 6,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: -26.2041,
-      endLng: 28.0473, // Johannesburg
-      arcAlt: 0.4,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 7,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 55.7558,
-      endLng: 37.6176, // Moscow
-      arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 7,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 31.2304,
-      endLng: 121.4737, // Shanghai
-      arcAlt: 0.4,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 8,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 25.2048,
-      endLng: 55.2708, // Dubai
-      arcAlt: 0.3,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 8,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: -1.2921,
-      endLng: 36.8219, // Nairobi
-      arcAlt: 0.4,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 9,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 19.4326,
-      endLng: -99.1332, // Mexico City
-      arcAlt: 0.4,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 9,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 41.9028,
-      endLng: 12.4964, // Rome
-      arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 10,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: 59.9311,
-      endLng: 30.3609, // St Petersburg
-      arcAlt: 0.2,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
-    {
-      order: 10,
-      startLat: 54.526,
-      startLng: -2.9623, // UK
-      endLat: -34.6037,
-      endLng: -58.3816, // Buenos Aires
-      arcAlt: 0.5,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    },
+  const connections = [
+    { order: 1, startLat: 40.7128, startLng: -74.006,   endLat: 51.5074,  endLng: -0.1278,   arcAlt: 0.30, color: colors[0] },
+    { order: 1, startLat: 35.6762, startLng: 139.6503,  endLat: 1.3521,   endLng: 103.8198,  arcAlt: 0.22, color: colors[1] },
+    { order: 2, startLat: 48.8566, startLng: 2.3522,    endLat: 25.2048,  endLng: 55.2708,   arcAlt: 0.35, color: colors[0] },
+    { order: 2, startLat: -33.868, startLng: 151.2093,  endLat: 31.2304,  endLng: 121.4737,  arcAlt: 0.20, color: colors[2] },
+    { order: 3, startLat: 37.7749, startLng: -122.4194, endLat: 19.4326,  endLng: -99.1332,  arcAlt: 0.18, color: colors[1] },
+    { order: 3, startLat: 52.52,   startLng: 13.405,    endLat: -1.2921,  endLng: 36.8219,   arcAlt: 0.42, color: colors[0] },
+    { order: 4, startLat: 55.7558, startLng: 37.6176,   endLat: 28.6139,  endLng: 77.209,    arcAlt: 0.30, color: colors[2] },
+    { order: 4, startLat: -22.906, startLng: -43.1729,  endLat: 40.7128,  endLng: -74.006,   arcAlt: 0.42, color: colors[1] },
+    { order: 5, startLat: 43.6532, startLng: -79.3832,  endLat: 48.8566,  endLng: 2.3522,    arcAlt: 0.35, color: colors[0] },
+    { order: 5, startLat: 34.0522, startLng: -118.2437, endLat: 35.6762,  endLng: 139.6503,  arcAlt: 0.47, color: colors[1] },
+    { order: 6, startLat: 1.3521,  startLng: 103.8198,  endLat: 51.5074,  endLng: -0.1278,   arcAlt: 0.52, color: colors[0] },
+    { order: 6, startLat: 25.2048, startLng: 55.2708,   endLat: 40.7128,  endLng: -74.006,   arcAlt: 0.50, color: colors[2] },
+    { order: 7, startLat: 41.9028, startLng: 12.4964,   endLat: 34.0522,  endLng: -118.2437, arcAlt: 0.45, color: colors[0] },
+    { order: 7, startLat: -26.204, startLng: 28.0473,   endLat: 51.5074,  endLng: -0.1278,   arcAlt: 0.50, color: colors[1] },
+    { order: 8, startLat: 22.3193, startLng: 114.1694,  endLat: 37.7749,  endLng: -122.4194, arcAlt: 0.48, color: colors[0] },
+    { order: 8, startLat: -34.603, startLng: -58.3816,  endLat: 52.52,    endLng: 13.405,    arcAlt: 0.52, color: colors[1] },
   ]
 
   return (
@@ -224,28 +56,22 @@ export default function StudentGlobe() {
 
       <div className="max-w-full mx-auto w-full relative overflow-hidden h-full">
         <motion.div
-          initial={{
-            opacity: 0,
-            y: 20,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          transition={{
-            duration: 1,
-          }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
           className="text-center mb-8 relative z-20"
         >
-          <h3 className="text-lg md:text-xl font-bold text-primary mb-2">Global Beet Farm Network</h3>
+          <h3 className="text-lg md:text-xl font-bold text-primary mb-2">
+            Private Global Payments
+          </h3>
           <p className="text-sm md:text-base font-normal text-muted-foreground max-w-md mx-auto">
-            A worldwide network of Beet Harvesters 
+            Stealth transactions flowing between financial hubs — no trace, no identity
           </p>
         </motion.div>
 
         <div className="absolute w-full bottom-0 inset-x-0 h-20 bg-gradient-to-b pointer-events-none select-none from-transparent to-background z-40" />
         <div className="absolute w-full -bottom-10 h-full z-10">
-          <World data={studentConnections} globeConfig={globeConfig} />
+          <World data={connections} globeConfig={globeConfig} />
         </div>
       </div>
     </div>
