@@ -30,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${spaceGrotesk.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`dark ${spaceGrotesk.variable} ${dmSans.variable}`}>
       <head>
         <style>{`
 html {
