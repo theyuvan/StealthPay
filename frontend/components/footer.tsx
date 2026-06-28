@@ -17,26 +17,6 @@ export default function Footer() {
       />
 
       <div className="relative z-10 mx-auto max-w-5xl px-6">
-        <div className="text-center mb-8">
-          <h3 className="text-2xl font-bold font-heading text-primary mb-2">ZK Stellar</h3>
-          <p className="text-muted-foreground">Stealth Addresses + ZK Linkability Proofs on Stellar</p>
-        </div>
-
-        <div className="my-8 flex flex-wrap justify-center gap-6 text-sm">
-          <Link href="/send" className="text-muted-foreground hover:text-primary block duration-150">
-            Send
-          </Link>
-          <Link href="/receive" className="text-muted-foreground hover:text-primary block duration-150">
-            Receive
-          </Link>
-          <Link href="/prove" className="text-muted-foreground hover:text-primary block duration-150">
-            Prove
-          </Link>
-          <a href="https://dorahacks.io/hackathon/stellar-hacks-zk" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary block duration-150">
-            DoraHacks
-          </a>
-        </div>
-
         <span className="block text-center text-sm text-primary/80 font-semibold">
           © {new Date().getFullYear()} ZK Stellar — Built for DoraHacks Stellar ZK Hackathon
         </span>
