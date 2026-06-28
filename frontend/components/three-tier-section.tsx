@@ -1,74 +1,111 @@
-import { Send, ScanLine, ShieldCheck } from "lucide-react"
+import { Key, Send, ScanLine, ShieldCheck, ArrowRight } from "lucide-react"
+
+const steps = [
+  {
+    number: "01",
+    icon: Key,
+    title: "Get your metaAddress",
+    description:
+      "Generate a single keypair: a public metaAddress you share freely, and a private metaPriv you keep secret. " +
+      "The metaAddress is your stealth identity — like an email address, but for private payments.",
+    detail: "One keypair, always",
+    tech: "secp256k1 keygen",
+  },
+  {
+    number: "02",
+    icon: Send,
+    title: "Sender pays privately",
+    description:
+      "The sender enters your metaAddress, picks a random secret, and derives a one-time stealth address just for this payment using EC Diffie-Hellman. " +
+      "They send XLM to that address and post a public announcement — a hint only you can decode.",
+    detail: "One-time address per payment",
+    tech: "ECDH · manageData",
+  },
+  {
+    number: "03",
+    icon: ScanLine,
+    title: "Scan & find your payment",
+    description:
+      "You fetch all public announcements and scan them locally using your metaPriv. " +
+      "For each hint, your key checks if the derived address matches — a match means that payment is yours. " +
+      "Nothing is sent to any server.",
+    detail: "Private keys stay in your browser",
+    tech: "Local scan · no server",
+  },
+  {
+    number: "04",
+    icon: ShieldCheck,
+    title: "Prove ownership & claim",
+    description:
+      "To withdraw funds, you generate a Groth16 ZK proof in-browser that proves you know the private key controlling the stealth address — " +
+      "without revealing the key itself. The proof is verified on-chain and a Poseidon nullifier prevents replay.",
+    detail: "Zero-knowledge, one-shot",
+    tech: "Circom · snarkjs · Groth16",
+  },
+]
 
 export default function ThreeTierSection() {
   return (
-    <section className="py-20 px-4">
-      <div className="max-w-4xl mx-auto">
+    <section className="py-24 px-4">
+      <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold font-heading mb-6 text-white md:text-5xl">How It Works</h2>
-          <p className="text-xl text-muted-foreground">Three steps. Zero address exposure.</p>
+          <h2 className="text-3xl md:text-5xl font-bold font-heading mb-4 text-white">How It Works</h2>
+          <p className="text-xl text-muted-foreground">
+            From a shared public key to private on-chain payments — four steps.
+          </p>
         </div>
 
-        <div className="space-y-0 border border-border rounded-lg overflow-hidden">
-          <div className="flex items-center p-6 border-b border-solid border-white">
-            <div className="flex items-center min-w-0 flex-1">
-              <div className="p-3 bg-primary/10 rounded-lg mr-6 shrink-0">
-                <Send className="h-6 w-6 text-primary" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="text-xl font-bold font-heading text-secondary-foreground">1 — Sender derives stealth address</h3>
-                <p className="text-muted-foreground text-sm mt-1">
-                  Given the recipient's public meta-address (scanPub:spendPub), the sender picks a random scalar r,
-                  computes shared secret S = r·Ks, and derives a one-time address P = Ksp + hash(S)·G. Posts (P, R=r·G)
-                  to the registry.
-                </p>
-              </div>
-            </div>
-            <div className="ml-6 text-right shrink-0">
-              <div className="text-muted-foreground text-sm">EC Diffie-Hellman</div>
-              <div className="text-muted-foreground text-sm">secp256k1</div>
-            </div>
-          </div>
+        <div className="relative">
+          {/* Vertical connector line */}
+          <div className="absolute left-8 top-8 bottom-8 w-px bg-border hidden md:block" />
 
-          <div className="flex items-center p-6 border-b border-solid border-white">
-            <div className="flex items-center min-w-0 flex-1">
-              <div className="p-3 bg-primary/10 rounded-lg mr-6 shrink-0">
-                <ScanLine className="h-6 w-6 text-primary" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="text-xl font-bold font-heading text-secondary-foreground">2 — Recipient scans locally</h3>
-                <p className="text-muted-foreground text-sm mt-1">
-                  The recipient fetches all announcements, computes S = ks·R for each, and checks if
-                  hash(S)·G + Ksp = P. A match means it's theirs. The spend private key = ksp + hash(S) unlocks the
-                  funds. Keys never leave the browser.
-                </p>
-              </div>
-            </div>
-            <div className="ml-6 text-right shrink-0">
-              <div className="text-muted-foreground text-sm">Local scan</div>
-              <div className="text-muted-foreground text-sm">Private keys stay local</div>
-            </div>
-          </div>
+          <div className="space-y-4">
+            {steps.map((step, i) => {
+              const Icon = step.icon
+              return (
+                <div
+                  key={step.number}
+                  className="relative flex gap-6 p-6 rounded-2xl border border-border bg-card hover:border-primary/30 transition-colors group"
+                >
+                  {/* Step number circle */}
+                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center relative z-10 group-hover:bg-primary/20 transition-colors">
+                    <Icon className="h-4 w-4 text-primary" />
+                  </div>
 
-          <div className="flex items-center p-6">
-            <div className="flex items-center min-w-0 flex-1">
-              <div className="p-3 bg-primary/10 rounded-lg mr-6 shrink-0">
-                <ShieldCheck className="h-6 w-6 text-primary" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="text-xl font-bold font-heading text-secondary-foreground">3 — Prove ownership with ZK</h3>
-                <p className="text-muted-foreground text-sm mt-1">
-                  A Groth16 circuit (Circom 2 + snarkjs) proves knowledge of ks and ksp that satisfy the stealth
-                  derivation constraints, without revealing them. A Poseidon nullifier is stored on the Soroban
-                  contract to prevent reuse.
-                </p>
-              </div>
-            </div>
-            <div className="ml-6 text-right shrink-0">
-              <div className="text-muted-foreground text-sm">Groth16</div>
-              <div className="text-muted-foreground text-sm">On-chain nullifier</div>
-            </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-4 mb-2 flex-wrap">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-mono text-muted-foreground">{step.number}</span>
+                        <h3 className="text-lg font-bold font-heading text-foreground">{step.title}</h3>
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                          {step.tech}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-2">{step.description}</p>
+                    <p className="text-xs text-primary/70 font-medium">{step.detail}</p>
+                  </div>
+                </div>
+              )
+            })}
           </div>
+        </div>
+
+        {/* Summary bar */}
+        <div className="mt-10 flex items-center justify-center gap-3 flex-wrap text-sm text-muted-foreground">
+          <span className="text-foreground font-semibold">metaAddress</span>
+          <ArrowRight className="h-3.5 w-3.5 text-primary" />
+          <span>Stealth Address</span>
+          <ArrowRight className="h-3.5 w-3.5 text-primary" />
+          <span>Announcement</span>
+          <ArrowRight className="h-3.5 w-3.5 text-primary" />
+          <span className="text-foreground font-semibold">metaPriv scan</span>
+          <ArrowRight className="h-3.5 w-3.5 text-primary" />
+          <span>ZK Proof</span>
+          <ArrowRight className="h-3.5 w-3.5 text-primary" />
+          <span className="text-foreground font-semibold">Claim XLM</span>
         </div>
       </div>
     </section>

@@ -15,9 +15,6 @@ export default function HeroSection() {
           {/* ── Left column: hero copy ──────────────────────────────────── */}
           <div className="lg:col-span-2 space-y-8">
             <div>
-              <Badge variant="outline" className="mb-4 text-sm font-medium">
-                ZK Stellar — DoraHacks Hackathon 2025
-              </Badge>
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold font-heading mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                 Pay without a trace
               </h1>
@@ -32,21 +29,20 @@ export default function HeroSection() {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/send">
-                <Button size="lg" className="text-lg px-8 py-6">
+                <Button size="lg" className="text-lg px-8 py-6 cursor-pointer">
                   <Shield className="mr-2 h-5 w-5" />
                   Try the Demo
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Link href="/receive">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="text-lg px-8 py-6 bg-transparent border-secondary-foreground text-secondary-foreground hover:bg-secondary-foreground hover:text-secondary"
-                >
-                  Scan for Payments
-                </Button>
-              </Link>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="text-lg px-8 py-6 border-foreground/50 text-foreground hover:bg-foreground! hover:text-background!"
+              >
+                <Link href="/receive">Scan for Payments</Link>
+              </Button>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl">
