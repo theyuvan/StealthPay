@@ -13,7 +13,7 @@ import {
   ChevronLeft,
 } from "lucide-react"
 
-const API = "http://localhost:4000"
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"
 const EXPLORER_TX = "https://stellar.expert/explorer/testnet/tx"
 const EXPLORER_ACC = "https://stellar.expert/explorer/testnet/account"
 

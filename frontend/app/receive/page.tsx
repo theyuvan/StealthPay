@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { useWallet } from "@/hooks/wallet-context"
 import { Loader2, ScanLine, Key, Copy, Check, ExternalLink, Eye, EyeOff, ArrowRight } from "lucide-react"
 
-const API = "http://localhost:4000"
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"
 
 type Announcement = {
   id: number

@@ -13,7 +13,7 @@ import {
   ArrowRight, ExternalLink, AlertCircle
 } from "lucide-react"
 
-const API = "http://localhost:4000"
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"
 const TESTNET_EXPLORER = "https://stellar.expert/explorer/testnet/tx"
 
 type ProveResult = {
