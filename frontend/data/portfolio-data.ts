@@ -34,10 +34,9 @@ export const skills = [
 ]
 
 export const achievements = [
-  { number: "1-of-1", label: "Stealth per payment" },
-  { number: "∞", label: "Address privacy" },
+  { number: "1", label: "Key to remember" },
   { number: "ZK", label: "Proof of ownership" },
-  { number: "0", label: "Identity exposed" },
+  { number: "∞", label: "Payment privacy" },
 ]
 
 export const careerTimeline = [
