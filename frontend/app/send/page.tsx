@@ -172,7 +172,7 @@ export default function SendPage() {
                   id="meta"
                   value={metaAddress}
                   onChange={e => { setMetaAddress(e.target.value); setStep("idle"); setDerived(null) }}
-                  placeholder="02abc…:02def…"
+                  placeholder="02… or 03… (33-byte compressed public key hex)"
                   className="font-mono text-sm"
                 />
               </div>
@@ -198,7 +198,7 @@ export default function SendPage() {
               <Button
                 onClick={deriveAddress}
                 disabled={!metaAddress.trim() || loading}
-                className="w-full"
+                className="w-full cursor-pointer hover:bg-foreground! hover:text-background!"
               >
                 {loading && step === "idle" ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Deriving…</>
@@ -246,7 +246,7 @@ export default function SendPage() {
             <Button
               onClick={sendPayment}
               disabled={!wallet.connected || loading}
-              className="w-full"
+              className="w-full cursor-pointer hover:bg-foreground! hover:text-background!"
             >
               {loading ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing &amp; submitting…</>
@@ -293,12 +293,12 @@ export default function SendPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="cursor-pointer hover:bg-foreground! hover:text-background!">
                       <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
                       View on Stellar Expert
                     </Button>
                   </a>
-                  <Button variant="ghost" size="sm" onClick={reset}>
+                  <Button variant="ghost" size="sm" onClick={reset} className="cursor-pointer hover:bg-foreground! hover:text-background!">
                     Send another
                   </Button>
                 </div>
@@ -314,7 +314,7 @@ export default function SendPage() {
               <li>Go to <strong className="text-foreground">/receive</strong></li>
               <li>Click <strong className="text-foreground">&quot;Generate fresh keys&quot;</strong></li>
               <li>Copy the <strong className="text-foreground">meta-address</strong> and share it</li>
-              <li>Save scan &amp; spend private keys — they&apos;re never stored on any server</li>
+              <li>Save the <strong className="text-foreground">private key</strong> — it&apos;s never stored on any server</li>
             </ol>
           </div>
         )}

@@ -211,7 +211,7 @@ export default function ReceivePage() {
               )}
             </div>
             <Button variant="outline" size="sm" onClick={generateAndRegister}
-              disabled={generating || alreadyRegistered || checkingRegistry} className="text-xs">
+              disabled={generating || alreadyRegistered || checkingRegistry} className="text-xs hover:bg-foreground! hover:text-background! cursor-pointer">
               {checkingRegistry
                 ? <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" />Checking…</>
                 : registerStep === "generating"
@@ -237,7 +237,7 @@ export default function ReceivePage() {
               <Input id="metaPriv" value={metaPriv} onChange={e => setMetaPriv(e.target.value)}
                 placeholder="Hex private key" className="font-mono text-sm" type="password" />
             </div>
-            <Button onClick={scanPayments} disabled={!metaPriv.trim() || loading} className="w-full">
+            <Button onClick={scanPayments} disabled={!metaPriv.trim() || loading} className="w-full cursor-pointer hover:bg-foreground! hover:text-background!">
               {loading
                 ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Scanning…</>
                 : <><ScanLine className="mr-2 h-4 w-4" />Scan for My Payments</>}
@@ -269,7 +269,7 @@ export default function ReceivePage() {
                   <a
                     href={`https://stellar.expert/explorer/testnet/tx/${generatedKeys.txHash}`}
                     target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-primary/80 hover:text-primary mt-1 transition-colors"
+                    className="inline-flex items-center gap-1 text-xs text-primary/80 hover:text-primary mt-1 transition-colors cursor-pointer"
                   >
                     <ExternalLink className="h-3 w-3" />
                     View on-chain proof
@@ -277,7 +277,7 @@ export default function ReceivePage() {
                 )}
               </div>
               {generatedKeys.metaPriv && (
-                <button onClick={() => setShowPriv(v => !v)} className="text-muted-foreground hover:text-primary transition-colors ml-3 flex-shrink-0">
+                <button onClick={() => setShowPriv(v => !v)} className="text-muted-foreground hover:text-primary transition-colors ml-3 flex-shrink-0 cursor-pointer">
                   {showPriv ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               )}
@@ -290,7 +290,7 @@ export default function ReceivePage() {
                   <span className="text-xs font-medium text-primary">
                     Meta-address <span className="font-normal opacity-70">(share with senders)</span>
                   </span>
-                  <button onClick={() => copy(generatedKeys.metaAddress, "meta")} className="text-muted-foreground hover:text-primary">
+                  <button onClick={() => copy(generatedKeys.metaAddress, "meta")} className="text-muted-foreground hover:text-primary cursor-pointer">
                     {copied === "meta" ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                   </button>
                 </div>
@@ -305,7 +305,7 @@ export default function ReceivePage() {
                       <span className="text-xs font-medium text-amber-400">
                         Private Key <span className="font-normal opacity-70">(secret — keep safe)</span>
                       </span>
-                      <button onClick={() => copy(generatedKeys.metaPriv!, "priv")} className="text-muted-foreground hover:text-primary">
+                      <button onClick={() => copy(generatedKeys.metaPriv!, "priv")} className="text-muted-foreground hover:text-primary cursor-pointer">
                         {copied === "priv" ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                       </button>
                     </div>
@@ -385,7 +385,7 @@ export default function ReceivePage() {
                       </div>
                     )}
 
-                    <Button className="w-full" onClick={() => goToProve(ann)} disabled={!ann.stellarSecret}>
+                    <Button className="w-full cursor-pointer hover:bg-foreground! hover:text-background!" onClick={() => goToProve(ann)} disabled={!ann.stellarSecret}>
                       Generate ZK Proof &amp; Claim to Wallet
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>

@@ -259,7 +259,7 @@ export default function ProvePage() {
               <Button
                 onClick={proveAndClaim}
                 disabled={!canProve || isWorking}
-                className="w-full"
+                className="w-full cursor-pointer hover:bg-foreground! hover:text-background!"
               >
                 {isWorking ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{stepLabels[step]}</>
@@ -322,12 +322,12 @@ export default function ProvePage() {
 
                 <div className="flex gap-3 flex-wrap">
                   <a href={`${TESTNET_EXPLORER}/${claimHash}`} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="cursor-pointer hover:bg-foreground! hover:text-background!">
                       <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
                       View on Stellar Expert
                     </Button>
                   </a>
-                  <Button variant="ghost" size="sm" onClick={() => { setClaimed(false); setStellarProofKey(""); setScanPriv(""); setSpendPriv(""); setProofResult(null); setError("") }}>
+                  <Button variant="ghost" size="sm" onClick={() => { setClaimed(false); setStellarProofKey(""); setMetaPriv(""); setProofResult(null); setError("") }} className="cursor-pointer hover:bg-foreground! hover:text-background!">
                     Claim another
                   </Button>
                 </div>

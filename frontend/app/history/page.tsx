@@ -10,6 +10,7 @@ import {
   Clock, ExternalLink, RefreshCw, Copy, Check,
   Search, ShieldCheck, Loader2, ArrowUpRight, ChevronRight,
   ArrowDownLeft,
+  ChevronLeft,
 } from "lucide-react"
 
 const API = "http://localhost:4000"
@@ -136,7 +137,7 @@ export default function HistoryPage() {
             <Badge variant="secondary" className="text-xs px-3 py-1.5">
               {total} total
             </Badge>
-            <Button variant="outline" size="sm" onClick={() => load(page, true)} disabled={refreshing} className="text-xs gap-1.5">
+            <Button variant="outline" size="sm" onClick={() => load(page, true)} disabled={refreshing} className="text-xs gap-1.5 hover:bg-foreground! hover:text-background! cursor-pointer">
               <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
               Refresh
             </Button>
@@ -272,9 +273,9 @@ export default function HistoryPage() {
               size="sm"
               onClick={() => setPage(p => Math.max(0, p - 1))}
               disabled={page === 0}
-              className="text-xs"
+              className="text-xs gap-1 cursor-pointer hover:bg-foreground! hover:text-background!"
             >
-              Previous
+              <ChevronLeft className="h-3.5 w-3.5" /> Previous
             </Button>
             <div className="flex items-center gap-1.5">
               {Array.from({ length: Math.min(totalPages, 7) }).map((_, i) => {
@@ -284,7 +285,7 @@ export default function HistoryPage() {
                   <button
                     key={pageNum}
                     onClick={() => setPage(pageNum)}
-                    className={`h-7 w-7 rounded text-xs font-medium transition-colors ${
+                    className={`h-7 w-7 rounded text-xs font-medium cursor-pointer transition-colors ${
                       pageNum === page
                         ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -300,7 +301,7 @@ export default function HistoryPage() {
               size="sm"
               onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
               disabled={page >= totalPages - 1}
-              className="text-xs gap-1"
+              className="text-xs gap-1 cursor-pointer hover:bg-foreground! hover:text-background!"
             >
               Next <ChevronRight className="h-3.5 w-3.5" />
             </Button>
