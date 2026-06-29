@@ -9,7 +9,7 @@ const StellarSdk = require('@stellar/stellar-sdk')
 const { generateMetaAddress } = require('./crypto/keys')
 const { deriveStealthAddress, deriveSpendKey, deriveStellarKeypair } = require('./crypto/stealth')
 const { scanAnnouncements } = require('./crypto/scan')
-const { computeProof } = require('../circuits/scripts/generate_proof')
+const { computeProof } = require('./generate_proof')
 
 // ── Horizon (classic Stellar) ─────────────────────────────────────────────────
 const TESTNET_SERVER = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org')
