@@ -693,23 +693,6 @@ stellar contract deploy \
 
 ---
 
-## 16. Links
-
-| Resource | URL |
-| --- | --- |
-| Stellar Expert (Testnet Explorer) | <https://stellar.expert/explorer/testnet> |
-| Stellar Horizon Testnet | <https://horizon-testnet.stellar.org> |
-| Soroban RPC Testnet | <https://soroban-testnet.stellar.org> |
-| Stellar Testnet Friendbot | <https://friendbot.stellar.org> |
-| Soroban Smart Contract Docs | <https://developers.stellar.org/docs/smart-contracts> |
-| Stellar JS SDK | <https://stellar.github.io/js-stellar-sdk> |
-| snarkjs | <https://github.com/iden3/snarkjs> |
-| Circom | <https://github.com/iden3/circom> |
-| circomlib (Poseidon) | <https://github.com/iden3/circomlib> |
-| @noble/curves | <https://github.com/paulmillr/noble-curves> |
-
----
-
 ## Acknowledgements
 
 - [Stellar Development Foundation](https://stellar.org) — Stellar blockchain, Soroban smart contracts, Horizon API
