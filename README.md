@@ -391,20 +391,20 @@ sequenceDiagram
 
     Recipient->>Frontend: Connect xBull wallet (Testnet)
     Frontend->>Backend: POST /keys/generate
-    Backend-->>Frontend: { metaAddress, metaPriv }
+    Backend-->>Frontend: metaAddress and metaPriv
 
-    Recipient->>Frontend: Click "Generate & Register On-chain"
+    Recipient->>Frontend: Click Generate and Register On-chain
     Frontend->>Backend: POST /keys/build-register-tx (walletAddress, metaAddress)
-    Backend-->>Frontend: Unsigned manageData XDR (stores SHA256(metaAddress))
+    Backend-->>Frontend: Unsigned manageData XDR stores SHA256(metaAddress)
 
-    Frontend->>Recipient: Wallet prompt — sign in xBull
+    Frontend->>Recipient: Wallet prompt, sign in xBull
     Recipient-->>Frontend: Signed XDR
 
     Frontend->>Backend: POST /stealth/submit
     Backend->>Horizon: Submit signed manageData transaction
     Horizon-->>Backend: tx hash
 
-    Frontend-->>Recipient: Show metaAddress (share freely) + metaPriv (save once — never stored)
+    Frontend-->>Recipient: Show metaAddress to share freely, metaPriv saved once never stored
 ```
 
 ### Send Payment
@@ -420,17 +420,17 @@ sequenceDiagram
     Sender->>Frontend: Enter recipient metaAddress + amount
     Frontend->>Backend: POST /stealth/derive (metaAddress)
     Backend->>Backend: Generate ephemeral r, compute ECDH shared secret, derive stellarAddress
-    Backend-->>Frontend: { stellarAddress, ephemeralR, stealthPub }
+    Backend-->>Frontend: stellarAddress, ephemeralR, stealthPub
 
     Frontend->>Backend: POST /stealth/build-tx (fromAddress, toAddress, amount)
-    Backend->>Horizon: loadAccount(sender) — fetch sequence number
+    Backend->>Horizon: loadAccount(sender) to fetch sequence number
     Backend-->>Frontend: Unsigned payment XDR
 
-    Frontend->>Sender: Wallet prompt — sign payment in xBull
+    Frontend->>Sender: Wallet prompt, sign payment in xBull
     Sender-->>Frontend: Signed XDR
 
     Frontend->>Backend: POST /stealth/submit
-    Backend->>Horizon: Submit payment → funds land at stealth address
+    Backend->>Horizon: Submit payment, funds land at stealth address
 
     Frontend->>Backend: POST /announcements (ephemeralR, stellarAddress)
     Backend->>Registry: announce(sender, stealthPub, ephemeralR)
@@ -449,34 +449,34 @@ sequenceDiagram
     participant Horizon as Stellar Horizon
     participant Verifier as zk_verifier (Soroban)
 
-    Recipient->>Frontend: Enter metaPriv → Scan for My Payments
+    Recipient->>Frontend: Enter metaPriv, click Scan for My Payments
     Frontend->>Backend: POST /stealth/scan (metaPriv)
     Backend->>Backend: Fetch all announcements, run ECDH match against each
-    Backend-->>Frontend: List of matching { stellarAddress, ephemeralR }
+    Backend-->>Frontend: List of matching stealth addresses
 
     Frontend->>Horizon: GET balance for each matched address
     Frontend-->>Recipient: Owned payments with XLM balances
 
-    Recipient->>Frontend: Click "Generate ZK Proof & Claim"
+    Recipient->>Frontend: Click Generate ZK Proof and Claim
     Frontend->>Backend: POST /zk/prove (metaPriv, context)
-    Backend->>Backend: snarkjs Groth16 fullProve (runs in Node WASM)
-    Backend-->>Frontend: { proof, publicSignals, metaCommitment, nullifier }
+    Backend->>Backend: snarkjs Groth16 fullProve runs in Node WASM
+    Backend-->>Frontend: proof, publicSignals, metaCommitment, nullifier
 
     Frontend->>Backend: POST /stealth/build-claim-auth-tx (recipientAddress, nullifier)
     Backend-->>Frontend: Unsigned manageData XDR
-    Frontend->>Recipient: Wallet prompt — sign authorization in xBull
+    Frontend->>Recipient: Wallet prompt, sign authorization in xBull
     Recipient-->>Frontend: Signed XDR
 
     Frontend->>Backend: POST /stealth/submit (auth tx)
     Backend->>Horizon: Submit authorization on-chain
 
     Frontend->>Backend: POST /stealth/claim (stellarProofKey, recipientAddress, proof, publicSignals)
-    Backend->>Horizon: loadAccount(stealthAddress) — verify funds present
+    Backend->>Horizon: loadAccount(stealthAddress), verify funds present
     Backend->>Backend: snarkjs groth16.verify(vKey, publicSignals, proof)
-    Backend->>Verifier: is_nullifier_used(nullifier) → false
-    Backend->>Verifier: register_proof(nullifier, ...) — permanent on-chain record
-    Backend->>Horizon: accountMerge(stealthAddress → recipientAddress)
-    Horizon-->>Backend: Full XLM balance transferred; stealth account closed
+    Backend->>Verifier: is_nullifier_used(nullifier) returns false
+    Backend->>Verifier: register_proof(nullifier) — permanent on-chain record
+    Backend->>Horizon: accountMerge stealthAddress to recipientAddress
+    Horizon-->>Backend: Full XLM balance transferred, stealth account closed
 
     Frontend-->>Recipient: Funds confirmed in connected wallet
 ```
