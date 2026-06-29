@@ -1,6 +1,6 @@
 # StealthPay — Private Payments on Stellar
 
-> **DoraHacks Hackathon 2025 Submission**
+> **DoraHacks Hackathon 2026 Submission**
 >
 > *The first stealth-address + zero-knowledge proof payment system on Stellar — turning financial privacy from a theoretical concept into a live, usable primitive on a real-world payments blockchain.*
 
@@ -629,4 +629,4 @@ MIT
 
 ---
 
-*Built for the DoraHacks Hackathon 2025 · Running on Stellar Testnet · Privacy-preserving payments without compromise*
+*Built for the DoraHacks Hackathon 2026 · Running on Stellar Testnet · Privacy-preserving payments without compromise*
