@@ -6,20 +6,6 @@
 
 ---
 
-## This isn't theoretical — it's already costing people their safety
-
-On any public blockchain, your wallet address is a permanent surveillance record. That's not an abstract privacy concern — it has already led to real abductions:
-
-- **David Balland**, co-founder of hardware wallet maker Ledger, and his partner were kidnapped from their home in France in January 2025 in a ransom attempt tied to his crypto holdings. He was rescued after a multi-day police operation. *(Source: Tangem industry report)*
-- A **retired teacher in Recife, Brazil** was abducted in March 2025 and held at gunpoint until her son — a crypto professional living abroad — transferred 5 BTC. *(Source: Tangem industry report)*
-- Across the last 18 months, there have been **231+ documented physical kidnapping incidents** targeting crypto holders worldwide, resulting in **at least 6 deaths**. *(Source: Crisis24)*
-
-The mechanism in every case is the same: the chain itself. Anyone with a block explorer and a motive can trace a wallet's balance back to a person. For remittance recipients in particular — ordinary people receiving cross-border payments in lower-security environments — a visible wallet balance is a physical safety liability, not just a privacy inconvenience.
-
-StealthPay exists to make that liability disappear, on the network that already carries real remittance volume: Stellar.
-
----
-
 ## Deployed Contracts
 
 ### 🔵 Stellar Testnet
@@ -59,28 +45,9 @@ No mixers. No bridges. No custodians. Pure cryptography on Stellar.
 
 ---
 
-## 2. Market Opportunity
+## 2. The Problem — Why Now?
 
-Financial privacy is not a niche need — it is a growing global requirement that no blockchain payment system has cleanly solved.
-
-| Metric | Value | Source |
-|---|---|---|
-| Global remittance volume (2024) | **$905 billion** | World Bank |
-| Remittance corridor average fee | **6.4%** — largely from surveillance overhead and compliance friction | World Bank |
-| Crypto-related kidnapping incidents (last 18 months) | **231+ documented physical incidents**, **6+ deaths** | Crisis24 |
-| Privacy coin market (2025) | **$8.2 billion** in market cap across Monero, Zcash, and Dash | CoinGecko |
-| Financial surveillance incidents | **217 documented cases** of on-chain wallet targeting in 2024 | Chainalysis |
-| Activists + aid recipients at risk | **580M+** people living under financial censorship regimes | Freedom House |
-| Stellar monthly payment volume | **$250M+** — a real-world payments network that needs a privacy layer | Stellar.org |
-| Crypto privacy tooling (2025) | Still dominated by mixing services and privacy coins — **no clean stealth-address solution exists on Stellar** | — |
-
-The total addressable market is every person who uses a public blockchain and would prefer that their financial history not be a permanent public record. That is, eventually, everyone.
-
----
-
-## 3. The Problem — Why Now?
-
-### 3.1 Every Stellar Wallet Is a Permanent Surveillance Record
+### 2.1 Every Stellar Wallet Is a Permanent Surveillance Record
 
 On Stellar — and on every other public blockchain without explicit privacy tooling — your wallet address is fully transparent by design:
 
@@ -92,7 +59,7 @@ On Stellar — and on every other public blockchain without explicit privacy too
 | **Physical-world risk** | For humanitarian aid recipients, remittance workers, whistleblowers, and activists, a visible wallet address is a physical safety threat |
 | **Business confidentiality** | Competitors can monitor treasury movements, salary payments, and supplier relationships in real time |
 
-### 3.2 Existing Privacy Solutions Fail on Stellar
+### 2.2 Existing Privacy Solutions Fail on Stellar
 
 The privacy tooling that exists today either doesn't reach Stellar at all, or creates new problems:
 
@@ -104,13 +71,13 @@ The privacy tooling that exists today either doesn't reach Stellar at all, or cr
 | **Manual address rotation** | Requires coordination, doesn't hide the graph, breaks payment UX |
 | **Nothing** | The current state of Stellar — a payments network with zero privacy primitives |
 
-### 3.3 ZK Proofs Have Finally Become Practical for Browsers
+### 2.3 ZK Proofs Have Finally Become Practical for Browsers
 
 Until recently, generating a Groth16 proof required server-side compute or a native application. In 2024–2025, snarkjs matured to the point where WASM-based proving in the browser is fast enough for real users (10–30 seconds). ZK Stellar is built on this moment — privacy that requires no trusted compute server.
 
 ---
 
-## 4. The Solution
+## 3. The Solution
 
 ZK Stellar reframes privacy on Stellar from "use a different chain" to "use a cryptographic envelope on the same chain."
 
@@ -136,7 +103,7 @@ REGISTER (one-time keypair setup)
 | **accountMerge for claims** | Moves full XLM balance and permanently closes the stealth account in one operation |
 | **Off-chain announcements** | Sender hints stored on-chain via the registry contract — anyone can scan, no metadata leaked |
 
-### Why This Directly Answers the Kidnapping Problem
+### Why This Directly Answers
 
 A wallet address is only useful to an attacker if it is *static* and *linkable* to a person. StealthPay removes both properties:
 
@@ -146,7 +113,7 @@ A wallet address is only useful to an attacker if it is *static* and *linkable* 
 
 ---
 
-## 5. Competitive Landscape
+## 4. Competitive Landscape
 
 A feature-by-feature comparison against the closest alternatives.
 
@@ -174,7 +141,7 @@ A feature-by-feature comparison against the closest alternatives.
 
 ---
 
-## 6. Cryptographic Design
+## 5. Cryptographic Design
 
 ### Key System — Single Keypair
 
@@ -218,7 +185,7 @@ This keypair controls the stealth Stellar account and signs the `accountMerge` t
 
 ---
 
-## 7. ZK Circuit
+## 6. ZK Circuit
 
 **File:** `circuits/src/stealth_ownership.circom`
 
@@ -275,7 +242,7 @@ Private inputs (`metaPriv`) are never transmitted to any server — snarkjs runs
 
 ---
 
-## 8. Soroban Smart Contracts
+## 7. Soroban Smart Contracts
 
 Two Rust contracts deployed on Stellar Soroban Testnet.
 
@@ -331,7 +298,7 @@ pub fn get_proof_record(env: Env, nullifier: BytesN<32>) -> Option<ProofRecord>
 
 ---
 
-## 9. Architecture
+## 8. Architecture
 
 ```
 ┌──────────────────────── User / Browser ────────────────────────────────┐
@@ -352,7 +319,7 @@ pub fn get_proof_record(env: Env, nullifier: BytesN<32>) -> Option<ProofRecord>
 │  POST /stealth/build-tx           — Build unsigned Stellar payment XDR  │
 │  POST /stealth/submit             — Submit signed XDR to Horizon        │
 │  POST /stealth/claim              — snarkjs verify → nullifier → merge  │
-│  POST /stealth/build-claim-auth-tx — Build claim-authorization tx XDR  │
+│  POST /stealth/build-claim-auth-tx — Build claim-authorization tx XDR   │
 │  POST /keys/generate              — Fresh secp256k1 keypair             │
 │  POST /keys/build-register-tx     — manageData tx for registration      │
 │  POST /zk/prove                   — Groth16 proof via snarkjs           │
@@ -378,7 +345,7 @@ pub fn get_proof_record(env: Env, nullifier: BytesN<32>) -> Option<ProofRecord>
 
 ---
 
-## 10. Full Sequence Flow
+## 9. Full Sequence Flow
 
 ### Registration
 
@@ -483,27 +450,7 @@ sequenceDiagram
 
 ---
 
-## 11. Tech Stack
-
-| Layer | Technology |
-|---|---|
-| **Frontend** | Next.js 15 · React 19 · TypeScript · Tailwind CSS v4 |
-| **UI components** | Shadcn UI · Radix UI · Lucide React |
-| **3D background** | Three.js · @react-three/fiber · @react-three/drei · three-globe |
-| **Wallet** | `@creit.tech/stellar-wallets-kit` — xBull + Freighter |
-| **Stellar SDK** | `@stellar/stellar-sdk` v16 (frontend + backend) |
-| **Backend** | Node.js · Express · CORS |
-| **Elliptic curves** | `@noble/curves` — secp256k1 ECDH + key generation |
-| **Hashing** | `@noble/hashes` — SHA-256 |
-| **ZK circuits** | Circom 2.1.6 · circomlib (Poseidon) |
-| **ZK proving** | snarkjs 0.7.6 — Groth16 fullProve + verify |
-| **ZK hashing** | `poseidon-lite` — Poseidon hash outside the circuit |
-| **Smart contracts** | Rust · Soroban SDK 26.1.0 |
-| **Blockchain** | Stellar Testnet — Horizon API + Soroban RPC |
-
----
-
-## 12. Repository Structure
+## 10. Repository Structure
 
 ```
 stellar/
@@ -563,7 +510,7 @@ stellar/
 
 ---
 
-## 13. Local Development
+## 11. Local Development
 
 ### Prerequisites
 
@@ -662,7 +609,7 @@ stellar contract deploy \
 
 ---
 
-## 14. Security Model
+## 12. Security Model
 
 | Property | How It Holds |
 |---|---|
@@ -673,56 +620,6 @@ stellar contract deploy \
 | **Replay protection** | Poseidon nullifiers prevent the same proof from being reused. The nullifier is permanently stored on the `zk_verifier` Soroban contract after first use. |
 | **Selective disclosure** | Not anonymous mixing. Recipients can generate ZK proofs to selectively prove they received a specific payment to a compliance officer or auditor — without exposing their full payment history. |
 | **Non-custodial** | Funds never pass through the backend. The backend builds and submits transactions but holds no keys. The stealth account's private key is derived locally from `metaPriv` on claim. |
-
----
-
-## 15. Backend API Reference
-
-### Stealth
-
-| Method | Endpoint | Body | Returns |
-| --- | --- | --- | --- |
-| `POST` | `/stealth/derive` | `{ metaAddress }` | `{ stealthPub, ephemeralR, stellarAddress }` |
-| `POST` | `/stealth/scan` | `{ metaPriv }` | `{ total, owned, announcements }` |
-| `POST` | `/stealth/build-tx` | `{ fromAddress, toAddress, amount }` | `{ xdr, networkPassphrase }` |
-| `POST` | `/stealth/submit` | `{ signedXdr }` | `{ hash, success }` |
-| `POST` | `/stealth/build-claim-auth-tx` | `{ recipientAddress, nullifier }` | `{ xdr, networkPassphrase }` |
-| `POST` | `/stealth/claim` | `{ stellarProofKey, recipientAddress, proof, publicSignals }` | `{ hash, amount, stealthAddress }` |
-| `GET` | `/stealth/balance/:address` | — | `{ address, balance }` |
-
-### Keys
-
-| Method | Endpoint | Body | Returns |
-| --- | --- | --- | --- |
-| `POST` | `/keys/generate` | — | `{ metaPriv, metaPub, metaAddress }` |
-| `POST` | `/keys/build-register-tx` | `{ walletAddress, metaAddress }` | `{ xdr, networkPassphrase }` |
-| `POST` | `/keys/finalize-registration` | `{ walletAddress, metaAddress, txHash }` | `{ ok, metaAddress }` |
-| `GET` | `/keys/meta/:walletAddress` | — | `{ exists, metaAddress, txHash }` |
-
-### ZK Proof
-
-| Method | Endpoint | Body | Returns |
-| --- | --- | --- | --- |
-| `POST` | `/zk/prove` | `{ metaPriv, context? }` | `{ proof, publicSignals, metaCommitment, nullifier }` |
-| `POST` | `/zk/verify` | `{ proof, publicSignals }` | `{ valid: boolean }` |
-
-### Announcements
-
-| Method | Endpoint | Query / Body | Returns |
-| --- | --- | --- | --- |
-| `GET` | `/announcements` | `?from=0&count=20` | `{ total, announcements }` |
-| `POST` | `/announcements` | `{ stealthAddress, ephemeralR, stellarAddress, metadata }` | `{ ok }` |
-| `GET` | `/health` | — | `{ ok: true }` |
-
----
-
-## Acknowledgements
-
-- [Stellar Development Foundation](https://stellar.org) — Stellar blockchain, Soroban smart contracts, Horizon API
-- [iden3](https://iden3.io) — Circom, snarkjs, circomlib (Poseidon)
-- [Paul Miller](https://paulmillr.com) — @noble/curves (secp256k1), @noble/hashes
-- [Shadcn](https://ui.shadcn.com) — UI component library
-- [vasturiano/three-globe](https://github.com/vasturiano/three-globe) — 3D globe visualization
 
 ---
 
