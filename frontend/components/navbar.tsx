@@ -21,7 +21,7 @@ export default function Navbar() {
           <div className="h-7 w-7 rounded-md bg-primary/15 border border-primary/30 flex items-center justify-center">
             <Shield className="h-4 w-4 text-primary" />
           </div>
-          <span className="text-base tracking-tight">ZK Stellar</span>
+          <span className="text-base tracking-tight">StealthPay</span>
         </Link>
 
         <div className="flex items-center gap-1">

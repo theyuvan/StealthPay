@@ -18,7 +18,7 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  title: "ZK Stellar — Stealth Address + ZK Linkability Proof",
+  title: "StealthPay — Private Payments on Stellar",
   description:
     "Privacy-preserving payments on Stellar using stealth addresses and zero-knowledge proofs. Every payment lands at a fresh one-time address only the recipient can recognize.",
   generator: "v0.app",

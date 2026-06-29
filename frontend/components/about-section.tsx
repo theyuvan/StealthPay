@@ -31,7 +31,7 @@ export default function AboutSection() {
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Every XLM transaction on Stellar is public. Your address is a permanent record that anyone can read.
-            ZK Stellar fixes this — without breaking compliance.
+            StealthPay fixes this — without breaking compliance.
           </p>
         </div>
 

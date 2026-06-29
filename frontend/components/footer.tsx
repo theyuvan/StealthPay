@@ -18,7 +18,7 @@ export default function Footer() {
 
       <div className="relative z-10 mx-auto max-w-5xl px-6">
         <span className="block text-center text-sm text-primary/80 font-semibold">
-          © {new Date().getFullYear()} ZK Stellar — Built for DoraHacks Stellar ZK Hackathon
+          © {new Date().getFullYear()} StealthPay — Built for DoraHacks Stellar ZK Hackathon
         </span>
       </div>
     </footer>
