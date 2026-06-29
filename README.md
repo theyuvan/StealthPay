@@ -1,8 +1,22 @@
-# ZK Stellar — Private Payments on Stellar
+# StealthPay — Private Payments on Stellar
 
 > **DoraHacks Hackathon 2025 Submission**
 >
 > *The first stealth-address + zero-knowledge proof payment system on Stellar — turning financial privacy from a theoretical concept into a live, usable primitive on a real-world payments blockchain.*
+
+---
+
+## This isn't theoretical — it's already costing people their safety
+
+On any public blockchain, your wallet address is a permanent surveillance record. That's not an abstract privacy concern — it has already led to real abductions:
+
+- **David Balland**, co-founder of hardware wallet maker Ledger, and his partner were kidnapped from their home in France in January 2025 in a ransom attempt tied to his crypto holdings. He was rescued after a multi-day police operation. *(Source: Tangem industry report)*
+- A **retired teacher in Recife, Brazil** was abducted in March 2025 and held at gunpoint until her son — a crypto professional living abroad — transferred 5 BTC. *(Source: Tangem industry report)*
+- Across the last 18 months, there have been **231+ documented physical kidnapping incidents** targeting crypto holders worldwide, resulting in **at least 6 deaths**. *(Source: Crisis24)*
+
+The mechanism in every case is the same: the chain itself. Anyone with a block explorer and a motive can trace a wallet's balance back to a person. For remittance recipients in particular — ordinary people receiving cross-border payments in lower-security environments — a visible wallet balance is a physical safety liability, not just a privacy inconvenience.
+
+StealthPay exists to make that liability disappear, on the network that already carries real remittance volume: Stellar.
 
 ---
 
@@ -53,6 +67,7 @@ Financial privacy is not a niche need — it is a growing global requirement tha
 |---|---|---|
 | Global remittance volume (2024) | **$905 billion** | World Bank |
 | Remittance corridor average fee | **6.4%** — largely from surveillance overhead and compliance friction | World Bank |
+| Crypto-related kidnapping incidents (last 18 months) | **231+ documented physical incidents**, **6+ deaths** | Crisis24 |
 | Privacy coin market (2025) | **$8.2 billion** in market cap across Monero, Zcash, and Dash | CoinGecko |
 | Financial surveillance incidents | **217 documented cases** of on-chain wallet targeting in 2024 | Chainalysis |
 | Activists + aid recipients at risk | **580M+** people living under financial censorship regimes | Freedom House |
@@ -120,6 +135,14 @@ REGISTER (one-time keypair setup)
 | **Soroban for nullifiers** | Nullifier registry lives on-chain — no central server to trust or censor |
 | **accountMerge for claims** | Moves full XLM balance and permanently closes the stealth account in one operation |
 | **Off-chain announcements** | Sender hints stored on-chain via the registry contract — anyone can scan, no metadata leaked |
+
+### Why This Directly Answers the Kidnapping Problem
+
+A wallet address is only useful to an attacker if it is *static* and *linkable* to a person. StealthPay removes both properties:
+
+- **No static address** — every incoming payment lands on a brand-new stealth address. There is no single "your wallet" to surveil, threaten, or extort.
+- **No linkability** — the on-chain payment carries no metadata back to the recipient's real wallet. Even the sender cannot trace the recipient after the fact.
+- **No forced disclosure** — claiming funds requires a ZK proof, not a public reveal. A recipient never has to expose their real wallet to receive or scan for money.
 
 ---
 
