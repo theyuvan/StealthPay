@@ -470,7 +470,7 @@ stellar/
 │   │   ├── stealth_ownership.r1cs    # compiled R1CS constraints
 │   │   ├── stealth_ownership.wasm    # WASM witness generator
 │   │   ├── stealth_ownership.zkey    # Groth16 proving key
-│   │   ├── verification_key.json     # verifier key (hardcoded in Soroban contract)
+│   │   ├── verification_key.json     # verifier key
 │   │   └── stealth_ownership_js/     # witness calculator JS
 │   ├── scripts/
 │   │   └── generate_proof.js         # snarkjs fullProve + verify wrapper
@@ -480,10 +480,10 @@ stellar/
 │   ├── Cargo.toml                    # workspace
 │   ├── stealth_registry/
 │   │   └── src/lib.rs                # Soroban: on-chain announcement store
-│   ├── zk_verifier/
-│   │   └── src/lib.rs                # Soroban: nullifier registry + proof records
-│   └── stealth_pool/
-│       └── src/lib.rs                # Soroban: pooled fund escrow (future)
+│   └── zk_verifier/
+│       └── src/lib.rs                # Soroban: nullifier registry + proof records
+│   
+│                    
 │
 └── frontend/
     ├── app/
