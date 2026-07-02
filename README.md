@@ -185,7 +185,7 @@ A feature-by-feature comparison against the closest alternatives.
 
 ---
 
-## 5. Cryptographic Design
+## 6. Cryptographic Design
 
 ### Key System — Single Keypair
 
@@ -229,7 +229,7 @@ This keypair controls the stealth Stellar account and signs the `accountMerge` t
 
 ---
 
-## 6. ZK Circuit
+## 7. ZK Circuit
 
 **File:** `circuits/src/stealth_ownership.circom`
 
@@ -286,7 +286,7 @@ Private inputs (`metaPriv`) are never transmitted to any server — snarkjs runs
 
 ---
 
-## 7. Soroban Smart Contracts
+## 8. Soroban Smart Contracts
 
 Two Rust contracts deployed on Stellar Soroban Testnet.
 
@@ -342,7 +342,7 @@ pub fn get_proof_record(env: Env, nullifier: BytesN<32>) -> Option<ProofRecord>
 
 ---
 
-## 8. Architecture
+## 9. Architecture
 
 ```
 ┌──────────────────────── User / Browser ────────────────────────────────┐
@@ -389,7 +389,7 @@ pub fn get_proof_record(env: Env, nullifier: BytesN<32>) -> Option<ProofRecord>
 
 ---
 
-## 9. Full Sequence Flow
+## 10. Full Sequence Flow
 
 ### Registration
 
@@ -494,7 +494,7 @@ sequenceDiagram
 
 ---
 
-## 10. Repository Structure
+## 11. Repository Structure
 
 ```
 stellar/
@@ -554,7 +554,7 @@ stellar/
 
 ---
 
-## 11. Local Development
+## 12. Local Development
 
 ### Prerequisites
 
@@ -653,7 +653,7 @@ stellar contract deploy \
 
 ---
 
-## 12. Security Model
+## 13. Security Model
 
 | Property | How It Holds |
 |---|---|
