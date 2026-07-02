@@ -113,7 +113,51 @@ A wallet address is only useful to an attacker if it is *static* and *linkable* 
 
 ---
 
-## 4. Competitive Landscape
+## 4. Why Zero-Knowledge Is the Core of Everything Here
+
+The entire system has two hard requirements that seem to contradict each other:
+
+**Requirement 1** — The recipient must be able to prove they own the stealth address to claim the funds.
+
+**Requirement 2** — That proof cannot reveal their private key, or the entire privacy guarantee collapses.
+
+This is exactly the problem ZK proofs were built to solve.
+
+### How the Two Keys Connect
+
+When a sender pays you, they use your public `metaAddress` to mathematically derive a fresh stealth address. That stealth address is cryptographically derived FROM your `metaAddress` — but no one on-chain can see that link. It looks like a random address to every observer. Now you need to prove that stealth address is yours.
+
+### The Problem Without ZK
+
+Without ZK, your only option is to sign a transaction with your `metaPriv`. But the moment you sign anything with `metaPriv` on-chain, the link is visible — this private key controls both the stealth address AND your meta identity. You have just connected them publicly. Privacy destroyed.
+
+### What ZK Solves
+
+Instead of revealing `metaPriv`, you run it through the Circom circuit:
+
+```
+Private input:  metaPriv  (never leaves your device)
+                    ↓
+Poseidon(metaPriv, metaPriv)  =  metaCommitment  ← published on-chain
+Poseidon(metaPriv, context)   =  nullifier        ← published on-chain
+```
+
+The proof says: *"I know the private key behind this metaAddress, and I am the one who derived this stealth address — without showing you the key."*
+
+The chain verifies the math. The nullifier is locked. The funds release. Your private key was never seen by anyone.
+
+### The Two-Layer Guarantee
+
+| Layer | What it does | What ZK protects |
+| --- | --- | --- |
+| **ECDH stealth address** | Hides WHO received the payment | Sender cannot reverse-engineer your identity from the on-chain data |
+| **Groth16 ZK proof** | Proves YOU own the stealth address | You claim funds without linking your real wallet to the stealth address on-chain |
+
+Remove either layer and the system breaks. ECDH alone lets you receive privately but you cannot claim without revealing yourself. ZK alone without stealth addresses means the payment still lands at your known wallet. Both together is what makes the full privacy guarantee work.
+
+---
+
+## 5. Competitive Landscape
 
 A feature-by-feature comparison against the closest alternatives.
 
